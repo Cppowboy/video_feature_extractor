@@ -18,7 +18,7 @@ class AppearanceEncoder(nn.Module):
         self.resnet = models.resnet152()
         self.resnet.load_state_dict(torch.load(resnet_checkpoint))
         del self.resnet.fc
-        del self.resnet.avgpool
+        # del self.resnet.avgpool
 
     def forward(self, x):
         x = self.resnet.conv1(x)
@@ -31,6 +31,6 @@ class AppearanceEncoder(nn.Module):
         x = self.resnet.layer3(x)
         x = self.resnet.layer4(x)
 
-        # x = self.resnet.avgpool(x)
-        # x = x.view(x.size(0), -1)
+        x = self.resnet.avgpool(x)
+        x = x.view(x.size(0), -1)
         return x

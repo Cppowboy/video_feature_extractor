@@ -108,7 +108,7 @@ def extract_features(aencoder):
 
         # 视频特征的shape是max_frames x (2048 + 4096)
         # 如果帧的数量小于max_frames，则剩余的部分用0补足
-        feats = np.zeros((max_frames * width * height, feature_size), dtype='float32')
+        # feats = np.zeros((max_frames * width * height, feature_size), dtype='float32')
 
         # 先提取表观特征
         af = aencoder(frame_list)
@@ -116,10 +116,11 @@ def extract_features(aencoder):
         # 合并表观和动作特征
         # feats[:frame_count, :] = torch.cat([af, mf], dim=1).data.cpu().numpy()
         af = af.data.cpu().numpy()
-        af = af.transpose(0, 2, 3, 1)
-        af = af.reshape(-1, af.shape[-1])
-        feats[:frame_count * width * height, :] = af
-        print(feats.shape)
+        # af = af.transpose(0, 2, 3, 1)
+        # af = af.reshape(-1, af.shape[-1])
+        # feats[:frame_count * width * height, :] = af
+        # print(feats.shape)
+        feats = af
         if ds == 'msvd':
             vid = map_dict[video[:-4]]
             np.save(open(os.path.join(save_dir, vid + '.npy'), 'w'), feats)
