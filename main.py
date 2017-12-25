@@ -40,7 +40,7 @@ def sample_frames(video_path, train=True):
         frame = frame[:, :, ::-1]
         frames.append(frame)
         frame_count += 1
-
+    print('frame count', frame_count)
     indices = np.linspace(8, frame_count - 7, max_frames, endpoint=False, dtype=int)
 
     frames = np.array(frames)
@@ -93,20 +93,23 @@ def recur_dir(aencoder, base_dir, feature_dir, sub_dir):
         if os.path.isfile(os.path.join(base_dir, subpath)):
             file_name, file_ext = os.path.splitext(subpath)
             if file_ext == '.avi':
-                video_path = os.path.join(base_dir, subpath)
-                feature_path = os.path.join(feature_dir, file_name)
-                print(video_path, feature_path)
-                frame_list, clip_list, frame_count = sample_frames(video_path, train=True)
-                print(frame_count)
-                frame_list = np.array([preprocess_frame(x) for x in frame_list])
-                frame_list = frame_list.transpose((0, 3, 1, 2))
-                frame_list = Variable(torch.from_numpy(frame_list), volatile=True).cuda()
-                af = aencoder(frame_list)
-                af = af.data.cpu().numpy()
-                if not os.path.exists(os.path.dirname(feature_path)):
-                    os.makedirs(os.path.dirname(feature_path))
-                np.save(open(feature_path, 'w'), af)
-                print('saving feature to', af.shape, feature_path)
+                try:
+                    video_path = os.path.join(base_dir, subpath)
+                    feature_path = os.path.join(feature_dir, file_name)
+                    print(video_path, feature_path)
+                    frame_list, clip_list, frame_count = sample_frames(video_path, train=True)
+                    print(frame_count)
+                    frame_list = np.array([preprocess_frame(x) for x in frame_list])
+                    frame_list = frame_list.transpose((0, 3, 1, 2))
+                    frame_list = Variable(torch.from_numpy(frame_list), volatile=True).cuda()
+                    af = aencoder(frame_list)
+                    af = af.data.cpu().numpy()
+                    if not os.path.exists(os.path.dirname(feature_path)):
+                        os.makedirs(os.path.dirname(feature_path))
+                    np.save(open(feature_path, 'w'), af)
+                    print('saving feature to', af.shape, feature_path)
+                except Exception as e:
+                    print('Error:', e, file_name)
         else:
             recur_dir(aencoder, base_dir, feature_dir, os.path.join(sub_dir, f))
 
